@@ -20,7 +20,7 @@ if not st.session_state.jogo_iniciado:
     with col1:
         carro_escolhido = st.selectbox(
             "Escolha o seu Veículo:",
-            options=["Ferrari Vermelha", "Bugatti Verde", "Combe Branca"]
+            options=["Ferrari Vermelha", "Bugatti Verde", "Combe Branca", "Moto Roxa", "Quadriciclo Rosa"]
         )
         
     with col2:
@@ -40,7 +40,7 @@ if not st.session_state.jogo_iniciado:
 # ================= TELA DO JOGO =================
 if st.session_state.jogo_iniciado:
     
-    if st.button("🛑 Voltar à Garagem (Trocar Carro/Nível)"):
+    if st.button("🛑 Voltar à Garagem (Trocar Veículo/Nível)"):
         st.session_state.jogo_iniciado = False
         st.rerun()
         
@@ -85,10 +85,12 @@ if st.session_state.jogo_iniciado:
         const spawnChance = __CHANCE_SPAWN__;
         const myCarType = "__CARRO_ESCOLHIDO__";
 
-        // Define as dimensões do carro baseado na escolha do jogador
+        // Define as dimensões do veículo baseado na escolha do jogador
         let pWidth = 40, pHeight = 75, pSpeed = 7;
         if (myCarType === "Combe Branca") { pWidth = 48; pHeight = 90; pSpeed = 5; }
-        if (myCarType === "Bugatti Verde") { pWidth = 42; pHeight = 70; pSpeed = 8; }
+        else if (myCarType === "Bugatti Verde") { pWidth = 42; pHeight = 70; pSpeed = 8; }
+        else if (myCarType === "Moto Roxa") { pWidth = 30; pHeight = 65; pSpeed = 9; }
+        else if (myCarType === "Quadriciclo Rosa") { pWidth = 45; pHeight = 60; pSpeed = 6; }
 
         // Variáveis de estado do jogo
         let player = { x: 230, y: 480, width: pWidth, height: pHeight, speed: pSpeed, dx: 0, dy: 0 };
@@ -99,7 +101,6 @@ if st.session_state.jogo_iniciado:
         let isPaused = false;
         let isMobileControl = false;
 
-        // Função para reiniciar o jogo
         function restartGame() {
             player.x = 230;
             player.y = 480;
@@ -112,7 +113,7 @@ if st.session_state.jogo_iniciado:
             isPaused = false;
         }
 
-        // ================= CONTROLE POR MOVIMENTO (Giroscópio) =================
+        // ================= CONTROLES =================
         document.getElementById("btn-movimento").addEventListener("click", function() {
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission()
@@ -136,51 +137,33 @@ if st.session_state.jogo_iniciado:
                 player.dx = 0; player.dy = 0;
                 return;
             }
-
-            let x = event.gamma; // Esquerda/Direita [-90, 90]
-            let y = event.beta;  // Cima/Baixo [-180, 180]
-
-            // Zonas neutras para não ser muito sensível
+            let x = event.gamma; 
+            let y = event.beta;  
             if (x > 10) player.dx = player.speed;
             else if (x < -10) player.dx = -player.speed;
             else player.dx = 0;
 
-            // Assumindo que a pessoa segura o celular inclinado a ~45 graus
             if (y > 55) player.dy = player.speed;
             else if (y < 35) player.dy = -player.speed;
             else player.dy = 0;
         }
 
-        // Toque na tela para reiniciar ou pausar no celular
         canvas.addEventListener("touchstart", (e) => {
             e.preventDefault();
-            if (gameOver) {
-                restartGame();
-            } else {
-                isPaused = !isPaused;
-            }
+            if (gameOver) restartGame();
+            else isPaused = !isPaused;
         });
 
-        // ================= CONTROLES DE TECLADO (PC) =================
         document.addEventListener("keydown", (e) => {
-            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight", " ", "Enter"].indexOf(e.key) > -1 || e.code === "Space") {
-                e.preventDefault();
-            }
-            
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight", " ", "Enter"].indexOf(e.key) > -1 || e.code === "Space") e.preventDefault();
             if (!gameOver && !isPaused && !isMobileControl) {
                 if (e.key === "ArrowLeft") player.dx = -player.speed;
                 if (e.key === "ArrowRight") player.dx = player.speed;
                 if (e.key === "ArrowUp") player.dy = -player.speed;
                 if (e.key === "ArrowDown") player.dy = player.speed;
             }
-            
-            if (e.key === " " || e.code === "Space") {
-                if (!gameOver) isPaused = !isPaused;
-            }
-
-            if (e.key === "Enter" && gameOver) {
-                restartGame();
-            }
+            if (e.key === " " || e.code === "Space") if (!gameOver) isPaused = !isPaused;
+            if (e.key === "Enter" && gameOver) restartGame();
         });
 
         document.addEventListener("keyup", (e) => {
@@ -190,7 +173,7 @@ if st.session_state.jogo_iniciado:
             }
         });
 
-        // DESENHO DOS VEÍCULOS
+        // ================= DESENHOS DOS VEÍCULOS =================
         function drawFerrari(x, y, w, h) {
             ctx.save(); ctx.translate(x, y);
             ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(-5, 5, w+10, h);
@@ -233,6 +216,41 @@ if st.session_state.jogo_iniciado:
             ctx.restore();
         }
 
+        function drawMoto(x, y, w, h) {
+            ctx.save(); ctx.translate(x, y);
+            ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(w/2 - 10, 5, 20, h);
+            ctx.fillStyle = "#6600cc"; // Roxa
+            ctx.beginPath(); ctx.roundRect(w/2 - 8, 10, 16, h - 20, 5); ctx.fill();
+            ctx.fillStyle = "#111"; // Pneus
+            ctx.fillRect(w/2 - 5, 0, 10, 15);
+            ctx.fillRect(w/2 - 6, h - 15, 12, 15);
+            ctx.fillStyle = "#ccc"; // Guidão
+            ctx.fillRect(w/2 - 14, 20, 28, 4);
+            ctx.fillStyle = "#ffff99"; // Farol
+            ctx.beginPath(); ctx.arc(w/2, 5, 5, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+
+        function drawQuadriciclo(x, y, w, h) {
+            ctx.save(); ctx.translate(x, y);
+            ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(-2, 5, w+4, h);
+            ctx.fillStyle = "#111"; // Pneus
+            ctx.fillRect(0, 5, 12, 15);
+            ctx.fillRect(w-12, 5, 12, 15);
+            ctx.fillRect(0, h-20, 12, 15);
+            ctx.fillRect(w-12, h-20, 12, 15);
+            ctx.fillStyle = "#ff66b2"; // Rosa
+            ctx.beginPath(); ctx.roundRect(8, 10, w - 16, h - 20, 5); ctx.fill();
+            ctx.fillStyle = "#333"; // Banco
+            ctx.fillRect(12, h/2 - 5, w - 24, 20);
+            ctx.fillStyle = "#ccc"; // Guidão
+            ctx.fillRect(4, 20, w - 8, 4);
+            ctx.fillStyle = "#ffff99"; // Farol
+            ctx.fillRect(w/2 - 6, 8, 12, 6);
+            ctx.restore();
+        }
+
+        // ================= MECÂNICAS DE PISTA E OBSTÁCULOS =================
         function drawTrack() {
             ctx.fillStyle = "#2e8b57";
             ctx.fillRect(0, 0, 40, canvas.height);
@@ -254,12 +272,14 @@ if st.session_state.jogo_iniciado:
         }
 
         function spawnObstacle() {
-            let types = ["Ferrari Vermelha", "Combe Branca", "Bugatti Verde"];
+            let types = ["Ferrari Vermelha", "Combe Branca", "Bugatti Verde", "Moto Roxa", "Quadriciclo Rosa"];
             let type = types[Math.floor(Math.random() * types.length)];
             
             let w = 40, h = 75, spdModifier = 0;
             if (type === "Combe Branca") { w = 48; h = 90; spdModifier = -2; }
-            if (type === "Bugatti Verde") { w = 42; h = 70; spdModifier = 3; }
+            else if (type === "Bugatti Verde") { w = 42; h = 70; spdModifier = 3; }
+            else if (type === "Moto Roxa") { w = 30; h = 65; spdModifier = 4; }
+            else if (type === "Quadriciclo Rosa") { w = 45; h = 60; spdModifier = -1; }
 
             let xPos = 50 + Math.random() * (canvas.width - 100 - w);
             obstacles.push({ x: xPos, y: -100, width: w, height: h, speed: baseSpeed + spdModifier, type: type });
@@ -301,15 +321,16 @@ if st.session_state.jogo_iniciado:
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawTrack();
             
-            if(myCarType === "Ferrari Vermelha") drawFerrari(player.x, player.y, player.width, player.height);
-            else if(myCarType === "Combe Branca") drawCombe(player.x, player.y, player.width, player.height);
-            else if(myCarType === "Bugatti Verde") drawBugatti(player.x, player.y, player.width, player.height);
+            let pTypes = {
+                "Ferrari Vermelha": drawFerrari, "Combe Branca": drawCombe, 
+                "Bugatti Verde": drawBugatti, "Moto Roxa": drawMoto, "Quadriciclo Rosa": drawQuadriciclo
+            };
+            
+            pTypes[myCarType](player.x, player.y, player.width, player.height);
             
             for (let i = 0; i < obstacles.length; i++) {
                 let obs = obstacles[i];
-                if(obs.type === "Ferrari Vermelha") drawFerrari(obs.x, obs.y, obs.width, obs.height);
-                else if(obs.type === "Combe Branca") drawCombe(obs.x, obs.y, obs.width, obs.height);
-                else if(obs.type === "Bugatti Verde") drawBugatti(obs.x, obs.y, obs.width, obs.height);
+                pTypes[obs.type](obs.x, obs.y, obs.width, obs.height);
             }
 
             ctx.fillStyle = "white"; ctx.font = "bold 24px Arial";
@@ -318,25 +339,17 @@ if st.session_state.jogo_iniciado:
             ctx.shadowBlur = 0; 
 
             if (isPaused && !gameOver) {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "yellow";
-                ctx.font = "bold 40px Arial";
-                ctx.textAlign = "center";
+                ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "yellow"; ctx.font = "bold 40px Arial"; ctx.textAlign = "center";
                 ctx.fillText("PAUSADO", canvas.width / 2, canvas.height / 2);
-                ctx.font = "20px Arial";
-                ctx.fillText("Toque na tela para voltar", canvas.width / 2, canvas.height / 2 + 35);
+                ctx.font = "20px Arial"; ctx.fillText("Toque na tela para voltar", canvas.width / 2, canvas.height / 2 + 35);
             }
 
             if (gameOver) {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-                ctx.fillRect(0, canvas.height/2 - 60, canvas.width, 120);
-                ctx.fillStyle = "red";
-                ctx.font = "bold 40px Arial";
-                ctx.textAlign = "center";
+                ctx.fillStyle = "rgba(0, 0, 0, 0.7)"; ctx.fillRect(0, canvas.height/2 - 60, canvas.width, 120);
+                ctx.fillStyle = "red"; ctx.font = "bold 40px Arial"; ctx.textAlign = "center";
                 ctx.fillText("ACIDENTE!", canvas.width / 2, canvas.height / 2);
-                ctx.font = "20px Arial";
-                ctx.fillStyle = "white";
+                ctx.font = "20px Arial"; ctx.fillStyle = "white";
                 ctx.fillText("Toque na tela (ou Enter) para reiniciar", canvas.width / 2, canvas.height / 2 + 35);
             }
         }
