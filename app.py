@@ -5,7 +5,7 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="Retro Racing: Legends", page_icon="🏎️", layout="centered")
 
 st.title("🏎️ Retro Racing: Legends")
-st.markdown("Desvie do trânsito! Use as **Setas do Teclado (Cima, Baixo, Esquerda, Direita)** e aperte **'P'** para pausar.")
+st.markdown("Desvie do trânsito! Use as **Setas do Teclado (Cima, Baixo, Esquerda, Direita)** e aperte **'Espaço'** para pausar.")
 
 # Inicializa o estado do jogo na memória
 if 'jogo_iniciado' not in st.session_state:
@@ -91,10 +91,10 @@ if st.session_state.jogo_iniciado:
         let gameOver = false;
         let isPaused = false;
 
-        // Controles com Setas e Tecla P
+        // Controles com Setas e Espaço
         document.addEventListener("keydown", (e) => {
-            // Evita que as setas rolem a página do navegador
-            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight", " "].indexOf(e.code) > -1) {
+            // Evita que as setas e a barra de espaço rolem a página do navegador
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight", " "].indexOf(e.key) > -1 || e.code === "Space") {
                 e.preventDefault();
             }
             if (e.key === "ArrowLeft") player.dx = -player.speed;
@@ -102,8 +102,8 @@ if st.session_state.jogo_iniciado:
             if (e.key === "ArrowUp") player.dy = -player.speed;
             if (e.key === "ArrowDown") player.dy = player.speed;
             
-            // Pausa no P ou Esc
-            if (e.key.toLowerCase() === "p" || e.key === "Escape") {
+            // Pausa na barra de espaço
+            if (e.key === " " || e.code === "Space") {
                 if (!gameOver) isPaused = !isPaused;
             }
         });
@@ -199,8 +199,8 @@ if st.session_state.jogo_iniciado:
             if (player.x < 40) player.x = 40;
             if (player.x + player.width > canvas.width - 40) player.x = canvas.width - 40 - player.width;
             
-            if (player.y < 0) player.y = 0; // Não pode subir para fora da tela
-            if (player.y + player.height > canvas.height) player.y = canvas.height - player.height; // Não pode descer demais
+            if (player.y < 0) player.y = 0; 
+            if (player.y + player.height > canvas.height) player.y = canvas.height - player.height; 
 
             for (let i = 0; i < obstacles.length; i++) {
                 obstacles[i].y += obstacles[i].speed;
@@ -254,7 +254,7 @@ if st.session_state.jogo_iniciado:
                 ctx.textAlign = "center";
                 ctx.fillText("PAUSADO", canvas.width / 2, canvas.height / 2);
                 ctx.font = "20px Arial";
-                ctx.fillText("Aperte 'P' para voltar", canvas.width / 2, canvas.height / 2 + 35);
+                ctx.fillText("Aperte 'Espaço' para voltar", canvas.width / 2, canvas.height / 2 + 35);
             }
 
             // TELA DE GAME OVER
