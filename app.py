@@ -138,4 +138,74 @@ if st.session_state.jogo_iniciado:
 
         // DESENHO DOS VEÍCULOS
         function drawFerrari(x, y, w, h) {
-            ctx.save();
+            ctx.save(); ctx.translate(x, y);
+            ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(-5, 5, w+10, h);
+            let grad = ctx.createLinearGradient(0, 0, w, 0);
+            grad.addColorStop(0, "#800000"); grad.addColorStop(0.5, "#ff1a1a"); grad.addColorStop(1, "#800000");
+            ctx.fillStyle = grad;
+            ctx.beginPath(); ctx.roundRect(0, 0, w, h, 8); ctx.fill();
+            ctx.fillStyle = "rgba(10, 10, 10, 0.9)";
+            ctx.beginPath(); ctx.moveTo(6, 25); ctx.lineTo(w-6, 25); ctx.lineTo(w-2, 45); ctx.lineTo(2, 45); ctx.fill(); 
+            ctx.fillRect(6, 55, w-12, 10);
+            ctx.fillStyle = "#cc0000"; ctx.fillRect(0, h-8, w, 5);
+            ctx.fillStyle = "#ffff99"; ctx.fillRect(4, 2, 8, 4); ctx.fillRect(w-12, 2, 8, 4);
+            ctx.restore();
+        }
+
+        function drawCombe(x, y, w, h) {
+            ctx.save(); ctx.translate(x, y);
+            ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(-3, 3, w+6, h); 
+            let grad = ctx.createLinearGradient(0, 0, w, 0);
+            grad.addColorStop(0, "#cccccc"); grad.addColorStop(0.5, "#ffffff"); grad.addColorStop(1, "#cccccc");
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
+            ctx.strokeStyle = "#999"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, 20); ctx.lineTo(w/2, 35); ctx.lineTo(w, 20); ctx.stroke();
+            ctx.fillStyle = "rgba(40, 60, 80, 0.9)"; ctx.fillRect(2, 2, w-4, 18);
+            ctx.fillStyle = "#fffacd";
+            ctx.beginPath(); ctx.arc(8, 28, 5, 0, Math.PI*2); ctx.arc(w-8, 28, 5, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+
+        function drawBugatti(x, y, w, h) {
+            ctx.save(); ctx.translate(x, y);
+            ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(-4, 5, w+8, h);
+            let grad = ctx.createLinearGradient(0, 0, w, 0);
+            grad.addColorStop(0, "#003300"); grad.addColorStop(0.5, "#00e600"); grad.addColorStop(1, "#003300");
+            ctx.fillStyle = grad;
+            ctx.beginPath(); ctx.ellipse(w/2, h/2, w/2, h/2, 0, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "#000"; ctx.fillRect(w/2 - 6, 0, 12, 12);
+            ctx.fillStyle = "rgba(0,0,0,0.9)";
+            ctx.beginPath(); ctx.ellipse(w/2, h/3 + 5, w/2 - 6, 12, 0, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+
+        function drawTrack() {
+            ctx.fillStyle = "#2e8b57";
+            ctx.fillRect(0, 0, 40, canvas.height);
+            ctx.fillRect(canvas.width - 40, 0, 40, canvas.height);
+            
+            ctx.fillStyle = "#333";
+            ctx.fillRect(40, 0, canvas.width - 80, canvas.height);
+
+            if (!isPaused && !gameOver) distance += baseSpeed;
+            let offset = distance % 60;
+
+            for(let y = -60 + offset; y < canvas.height; y += 60) {
+                ctx.fillStyle = (Math.floor(y / 60) % 2 === 0) ? "#cc0000" : "#ffffff";
+                ctx.fillRect(30, y, 10, 60); 
+                ctx.fillRect(canvas.width - 40, y, 10, 60); 
+                ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+                ctx.fillRect(canvas.width/2 - 3, y + 15, 6, 30);
+            }
+        }
+
+        function spawnObstacle() {
+            let types = ["Ferrari Vermelha", "Combe Branca", "Bugatti Verde"];
+            let type = types[Math.floor(Math.random() * types.length)];
+            
+            let w = 40, h = 75, spdModifier = 0;
+            if (type === "Combe Branca") { w = 48; h = 90; spdModifier = -2; }
+            if (type === "Bugatti Verde") { w = 42; h = 70; spdModifier = 3; }
+
+            let xPos = 50 + Math.random() * (canvas.width - 100 - w);
+            obstacles.push({ x: xPos, y: -
