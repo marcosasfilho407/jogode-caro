@@ -19,7 +19,7 @@ if not st.session_state.jogo_iniciado:
     
     with col1:
         carro_escolhido = st.selectbox(
-            "Escolha seu Veículo:",
+            "Escolha o seu Veículo:",
             options=["Ferrari Vermelha", "Bugatti Verde", "Combe Branca"]
         )
         
@@ -138,24 +138,4 @@ if st.session_state.jogo_iniciado:
 
         // DESENHO DOS VEÍCULOS
         function drawFerrari(x, y, w, h) {
-            ctx.save(); ctx.translate(x, y);
-            ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(-5, 5, w+10, h);
-            let grad = ctx.createLinearGradient(0, 0, w, 0);
-            grad.addColorStop(0, "#800000"); grad.addColorStop(0.5, "#ff1a1a"); grad.addColorStop(1, "#800000");
-            ctx.fillStyle = grad;
-            ctx.beginPath(); ctx.roundRect(0, 0, w, h, 8); ctx.fill();
-            ctx.fillStyle = "rgba(10, 10, 10, 0.9)";
-            ctx.beginPath(); ctx.moveTo(6, 25); ctx.lineTo(w-6, 25); ctx.lineTo(w-2, 45); ctx.lineTo(2, 45); ctx.fill(); 
-            ctx.fillRect(6, 55, w-12, 10);
-            ctx.fillStyle = "#cc0000"; ctx.fillRect(0, h-8, w, 5);
-            ctx.fillStyle = "#ffff99"; ctx.fillRect(4, 2, 8, 4); ctx.fillRect(w-12, 2, 8, 4);
-            ctx.restore();
-        }
-
-        function drawCombe(x, y, w, h) {
-            ctx.save(); ctx.translate(x, y);
-            ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(-3, 3, w+6, h); 
-            let grad = ctx.createLinearGradient(0, 0, w, 0);
-            grad.addColorStop(0, "#cccccc"); grad.addColorStop(0.5, "#ffffff"); grad.addColorStop(1, "#cccccc");
-            ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
-            ctx.strokeStyle = "#99
+            ctx.save();
