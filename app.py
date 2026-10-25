@@ -208,4 +208,99 @@ if st.session_state.jogo_iniciado:
             if (type === "Bugatti Verde") { w = 42; h = 70; spdModifier = 3; }
 
             let xPos = 50 + Math.random() * (canvas.width - 100 - w);
-            obstacles.push({ x: xPos, y: -
+            obstacles.push({ x: xPos, y: -100, width: w, height: h, speed: baseSpeed + spdModifier, type: type });
+        }
+
+        function update() {
+            if (gameOver || isPaused) return;
+
+            player.x += player.dx;
+            player.y += player.dy;
+
+            if (player.x < 40) player.x = 40;
+            if (player.x + player.width > canvas.width - 40) player.x = canvas.width - 40 - player.width;
+            
+            if (player.y < 0) player.y = 0; 
+            if (player.y + player.height > canvas.height) player.y = canvas.height - player.height; 
+
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += obstacles[i].speed;
+                
+                let margin = 5;
+                if (player.x + margin < obstacles[i].x + obstacles[i].width - margin &&
+                    player.x + player.width - margin > obstacles[i].x + margin &&
+                    player.y + margin < obstacles[i].y + obstacles[i].height - margin &&
+                    player.y + player.height - margin > obstacles[i].y + margin) {
+                    gameOver = true;
+                }
+            }
+
+            if (obstacles.length > 0 && obstacles[0].y > canvas.height) {
+                obstacles.shift();
+                score += 100; 
+            }
+
+            if (Math.random() < spawnChance) spawnObstacle();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTrack();
+            
+            if(myCarType === "Ferrari Vermelha") drawFerrari(player.x, player.y, player.width, player.height);
+            else if(myCarType === "Combe Branca") drawCombe(player.x, player.y, player.width, player.height);
+            else if(myCarType === "Bugatti Verde") drawBugatti(player.x, player.y, player.width, player.height);
+            
+            for (let i = 0; i < obstacles.length; i++) {
+                let obs = obstacles[i];
+                if(obs.type === "Ferrari Vermelha") drawFerrari(obs.x, obs.y, obs.width, obs.height);
+                else if(obs.type === "Combe Branca") drawCombe(obs.x, obs.y, obs.width, obs.height);
+                else if(obs.type === "Bugatti Verde") drawBugatti(obs.x, obs.y, obs.width, obs.height);
+            }
+
+            ctx.fillStyle = "white"; ctx.font = "bold 24px Arial";
+            ctx.shadowColor = "black"; ctx.shadowBlur = 5;
+            ctx.fillText("Score: " + score, 50, 40);
+            ctx.shadowBlur = 0; 
+
+            if (isPaused && !gameOver) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "yellow";
+                ctx.font = "bold 40px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("PAUSADO", canvas.width / 2, canvas.height / 2);
+                ctx.font = "20px Arial";
+                ctx.fillText("Aperte 'Espaço' para voltar", canvas.width / 2, canvas.height / 2 + 35);
+            }
+
+            if (gameOver) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+                ctx.fillRect(0, canvas.height/2 - 60, canvas.width, 120);
+                ctx.fillStyle = "red";
+                ctx.font = "bold 40px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("ACIDENTE!", canvas.width / 2, canvas.height / 2);
+                ctx.font = "20px Arial";
+                ctx.fillStyle = "white";
+                ctx.fillText("Aperte 'Enter' para reiniciar a corrida", canvas.width / 2, canvas.height / 2 + 35);
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+        
+        loop();
+    </script>
+    </body>
+    </html>
+    """
+
+    codigo_do_jogo = codigo_do_jogo.replace("__VEL_PISTA__", str(vel_pista))
+    codigo_do_jogo = codigo_do_jogo.replace("__CHANCE_SPAWN__", str(chance_spawn))
+    codigo_do_jogo = codigo_do_jogo.replace("__CARRO_ESCOLHIDO__", carro_escolhido)
+
+    components.html(codigo_do_jogo, height=650)
